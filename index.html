@@ -293,7 +293,7 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
 let objects = [
   {id:0,type:'INFPLANE',name:'床',        mat:'SOLID',col:[1,1,1],      pos:[0,-1,0],   normal:[0,1,0]},
   {id:1,type:'INFPLANE',name:'天井',      mat:'SOLID',col:[1,1,1],      pos:[0,1,0],    normal:[0,1,0]},
-  {id:2,type:'INFPLANE',name:'奥の壁',    mat:'SOLID',col:[1,1,1],      pos:[0,0,2],    normal:[0,0,-1]},
+  {id:2,type:'INFPLANE',name:'奥の壁',    mat:'SOLID',col:[1,1,0.5],      pos:[0,0,2],    normal:[0,0,-1]},
   {id:3,type:'INFPLANE',name:'右壁（緑）',mat:'SOLID',col:[0.1,0.8,0.1],pos:[1,0,0],    normal:[-1,0,0]},
   {id:4,type:'INFPLANE',name:'左壁（赤）',mat:'SOLID',col:[1,0.1,0.1],  pos:[-1,0,0],   normal:[1,0,0]},
   {id:5,type:'SPHERE',  name:'青い球',    mat:'SOLID',col:[0,0,0.9],    pos:[0,-0.82,1],radius:0.18},
@@ -846,3 +846,4 @@ renderList();renderProps();drawView();loadWasm();
 </script>
 </body>
 </html>
+
