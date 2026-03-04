@@ -174,7 +174,8 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
     <div style="flex-shrink:0">
       <div class="add-btns-grid">
         <button class="add-type-btn" onclick="addObject('SPHERE')">⚪ 球</button>
-        <button class="add-type-btn" onclick="addObject('INFPLANE')">▭ 平面</button>
+        <button class="add-type-btn" onclick="addObject('INFPLANE')">▭ 無限平面</button>
+        <button class="add-type-btn" onclick="addObject('LIMITPLANE')">▪ 有限平面</button>
         <button class="add-type-btn" onclick="addObject('CYLINDER')">🥫 円柱</button>
         <button class="add-type-btn" onclick="addObject('LIGHT')">💡 光源</button>
       </div>
@@ -343,11 +344,14 @@ function pushSceneToWasm(){
   const active=objects.filter(o=>o.enabled!==false);
   Module._set_object_count(active.length);
   active.forEach((obj,i)=>{
+    const wvec = obj.wvec||[1,0,0];
     Module._set_object(i,TYPE_MAP[obj.type]??0,MAT_MAP[obj.mat]??0,
       obj.col[0],obj.col[1],obj.col[2],
       obj.pos[0],obj.pos[1],obj.pos[2],
       (obj.normal||[0,1,0])[0],(obj.normal||[0,1,0])[1],(obj.normal||[0,1,0])[2],
-      obj.radius||0.3,obj.height||0.5);
+      obj.radius||0.3,obj.height||0.5,
+      wvec[0],wvec[1],wvec[2],
+      obj.lwidth||1.0,obj.lheight||1.0);
   });
   Module._set_camera(camPos[0],camPos[1],camPos[2],screenPos[0],screenPos[1],screenPos[2]);
 }
@@ -562,10 +566,11 @@ function switchTab(name,btn){
 }
 function addObject(type){
   const def={
-    SPHERE:{name:'球',mat:'SOLID',col:[0.8,0.3,0.3],pos:[0,0,1],radius:0.3},
-    INFPLANE:{name:'平面',mat:'SOLID',col:[0.8,0.8,0.8],pos:[0,0,0],normal:[0,1,0]},
-    CYLINDER:{name:'円柱',mat:'SOLID',col:[0.3,0.8,0.3],pos:[0,0,1],radius:0.25,height:0.5,normal:[0,1,0]},
-    LIGHT:{name:'光源',mat:'SOLID',col:[0.8,0.8,0.8],pos:[0,0.9,1]},
+    SPHERE:    {name:'球',      mat:'SOLID',col:[0.8,0.3,0.3],pos:[0,0,1],  radius:0.3},
+    INFPLANE:  {name:'無限平面',mat:'SOLID',col:[0.8,0.8,0.8],pos:[0,0,0],  normal:[0,1,0]},
+    LIMITPLANE:{name:'有限平面',mat:'SOLID',col:[0.8,0.8,0.8],pos:[0,0,1],  normal:[0,0,-1],wvec:[1,0,0],lwidth:1.0,lheight:1.0},
+    CYLINDER:  {name:'円柱',    mat:'SOLID',col:[0.3,0.8,0.3],pos:[0,0,1],  radius:0.25,height:0.5,normal:[0,1,0]},
+    LIGHT:     {name:'光源',    mat:'SOLID',col:[0.8,0.8,0.8],pos:[0,0.9,1]},
   };
   saveUndo();
   const obj={id:nextId++,type,enabled:false,...JSON.parse(JSON.stringify(def[type]))};
@@ -767,6 +772,49 @@ function renderProps(){
       </div>
       <div class="axis-hint" style="margin-top:5px;line-height:1.6">
         床: Y=1 ／ 天井: Y=1 ／ 右壁: X=−1<br>左壁: X=1 ／ 奥壁: Z=−1 ／ 手前壁: Z=−1
+      </div>
+    </div>`;
+  }
+  if(obj.type==='LIMITPLANE'){
+    const wv=obj.wvec||[1,0,0];
+    html+=`<div class="prop-section">
+      <div class="prop-section-title">法線方向（面の向き）</div>
+      <div class="vec3-wrap">
+        <div class="vec3-row"><span class="axis-label axis-x">X</span>
+          <input type="number" step="0.1" value="${obj.normal[0]}" onchange="updateVec(${obj.id},'normal',0,+this.value)">
+        </div>
+        <div class="vec3-row"><span class="axis-label axis-y">Y</span>
+          <input type="number" step="0.1" value="${obj.normal[1]}" onchange="updateVec(${obj.id},'normal',1,+this.value)">
+        </div>
+        <div class="vec3-row"><span class="axis-label axis-z">Z</span>
+          <input type="number" step="0.1" value="${obj.normal[2]}" onchange="updateVec(${obj.id},'normal',2,+this.value)">
+        </div>
+      </div>
+    </div>
+    <div class="prop-section">
+      <div class="prop-section-title">横方向ベクトル（w_vec）</div>
+      <div class="vec3-wrap">
+        <div class="vec3-row"><span class="axis-label axis-x">X</span>
+          <input type="number" step="0.1" value="${wv[0]}" onchange="updateVec(${obj.id},'wvec',0,+this.value)">
+        </div>
+        <div class="vec3-row"><span class="axis-label axis-y">Y</span>
+          <input type="number" step="0.1" value="${wv[1]}" onchange="updateVec(${obj.id},'wvec',1,+this.value)">
+        </div>
+        <div class="vec3-row"><span class="axis-label axis-z">Z</span>
+          <input type="number" step="0.1" value="${wv[2]}" onchange="updateVec(${obj.id},'wvec',2,+this.value)">
+        </div>
+      </div>
+      <div class="axis-hint" style="margin-top:4px">法線と直交する方向。通常 X向き: (1,0,0)</div>
+    </div>
+    <div class="prop-section">
+      <div class="prop-section-title">サイズ</div>
+      <div class="prop-field"><div class="prop-label">幅</div>
+        <input class="prop-input" type="number" step="0.1" min="0.01" value="${obj.lwidth||1.0}"
+          onchange="objects.find(o=>o.id===${obj.id}).lwidth=+this.value">
+      </div>
+      <div class="prop-field"><div class="prop-label">高さ</div>
+        <input class="prop-input" type="number" step="0.1" min="0.01" value="${obj.lheight||1.0}"
+          onchange="objects.find(o=>o.id===${obj.id}).lheight=+this.value">
       </div>
     </div>`;
   }
