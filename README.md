@@ -5,7 +5,7 @@ C言語で書いたレンダラーをWebAssembly(WASM)にコンパイルし、HT
 
 ## デモ
 
-> GitHub PagesのURLをここに貼る
+> レンダリング例
 
 ![render example](image10.png)
 
