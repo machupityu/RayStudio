@@ -7,7 +7,10 @@ C言語で書いたレンダラーをWebAssembly(WASM)にコンパイルし、HT
 
 > レンダリング例
 
-![render example](image10.png) ![render example1](render1.png)
+<p align="center">
+  <img src="image10.png" width="45%" />
+  <img src="image1.png" width="45%" />
+</p>
 
 ## 特徴
 
