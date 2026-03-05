@@ -8,7 +8,7 @@ A renderer written in C is compiled to WebAssembly (WASM), allowing you to edit 
 > Rendering examples
 
 <p align="center">
-  <img src="image10.png" width="45%" />
+  <img src="image101.png" width="45%" />
   <img src="render1.png" width="45%" />
 </p>
 
