@@ -248,14 +248,20 @@ input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer;}
       <div class="setting-section-title">🎨 レンダリング設定</div>
 
       <div class="setting-row">
-        <div class="setting-label">横解像度 <span id="lbl-res-w">256</span></div>
-        <input type="range" min="1" max="12" value="2" oninput="updateResW(this)">
-        <div class="setting-hint">大きいほど綺麗・遅い。確認用: <b>128~384</b> ／ 本番: <b>512〜1024</b></div>
+        <div class="setting-label">横解像度</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="range" min="1" max="12" value="2" oninput="updateResWSlider(this)" id="slider-res-w" style="flex:1;">
+          <input type="number" min="1" max="7680" value="256" oninput="updateResWInput(this)" id="input-res-w" style="width:62px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:2px 4px;font-size:12px;">
+        </div>
+        <div class="setting-hint">大きいほど綺麗・遅い。確認用: <b>128~384</b> ／ 本番: <b>512〜1920</b></div>
       </div>
       <div class="setting-row">
-        <div class="setting-label">縦解像度 <span id="lbl-res-h">256</span></div>
-        <input type="range" min="1" max="12" value="2" oninput="updateResH(this)">
-        <div class="setting-hint">大きいほど綺麗・遅い。確認用: <b>128~384</b> ／ 本番: <b>512〜1024</b></div>
+        <div class="setting-label">縦解像度</div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="range" min="1" max="12" value="2" oninput="updateResHSlider(this)" id="slider-res-h" style="flex:1;">
+          <input type="number" min="1" max="4320" value="256" oninput="updateResHInput(this)" id="input-res-h" style="width:62px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:2px 4px;font-size:12px;">
+        </div>
+        <div class="setting-hint">大きいほど綺麗・遅い。確認用: <b>128~384</b> ／ 本番: <b>512〜1080</b></div>
       </div>
       <div class="setting-row">
         <div class="setting-label">サンプル数 <span id="lbl-samples">30</span></div>
@@ -395,7 +401,7 @@ async function startRender(){
   btn.disabled=true;btn.textContent='⏳ レンダリング中...';
   pw.classList.add('active');pb.style.width='0%';pt.textContent='シーン送信中...';
   await new Promise(r=>setTimeout(r,30));
-  const w=RES_MAP[resScaleW],h=RES_MAP[resScaleH];
+  const w=resW,h=resH;
   canvas.width=w;canvas.height=h;
   canvas.style.display='block';
   canvas.style.transform=`scale(${zoomScale})`;
@@ -451,8 +457,23 @@ function updateCamera(){
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────
-function updateResW(el){resScaleW=+el.value;document.getElementById('lbl-res-w').textContent=RES_MAP[resScaleW];}
-function updateResH(el){resScaleH=+el.value;document.getElementById('lbl-res-h').textContent=RES_MAP[resScaleH];}
+let resW=256,resH=256;
+function updateResWSlider(el){
+  resW=RES_MAP[+el.value];
+  document.getElementById('input-res-w').value=resW;
+}
+function updateResWInput(el){
+  const v=parseInt(el.value);
+  if(v>=1) resW=v;
+}
+function updateResHSlider(el){
+  resH=RES_MAP[+el.value];
+  document.getElementById('input-res-h').value=resH;
+}
+function updateResHInput(el){
+  const v=parseInt(el.value);
+  if(v>=1) resH=v;
+}
 function updateSamples(el){samples=+el.value;document.getElementById('lbl-samples').textContent=samples;}
 function updateReflects(el){reflects=+el.value;document.getElementById('lbl-reflects').textContent=reflects;}
 function updateDecay(el){decay=+el.value;document.getElementById('lbl-decay').textContent=decay.toFixed(2);}
